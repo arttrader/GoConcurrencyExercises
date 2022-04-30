@@ -27,7 +27,7 @@ When a philosopher finishes eating (before it has released its locks) it prints 
 
 var w sync.WaitGroup
 
-const ne int = 1
+const ne int = 3
 
 type ChopS struct{ sync.Mutex }
 
@@ -37,39 +37,41 @@ type Philo struct {
 }
 
 type Host struct {
-	nEating chan int
+	sync.Mutex
+	nEating int
 }
 
 func (p Philo) eat(h *Host) {
 	for i := 0; i < ne; i++ {
 		if h.allow() {
-			fmt.Printf("starting to eat %d \n", p.num)
 			p.leftCS.Lock()
 			p.rightCS.Lock()
+			fmt.Printf("starting to eat %d \n", p.num)
+			fmt.Printf("finishing eating %d \n", p.num)
 			p.rightCS.Unlock()
 			p.leftCS.Unlock()
 			h.done()
-			fmt.Printf("finishing eating %d \n", p.num)
 		}
 	}
 	w.Done()
 }
 
 func (h Host) allow() bool {
-	ne := <-h.nEating
-	if ne < 2 {
-		ne++
-		h.nEating <- ne
+	h.Lock()
+	if h.nEating < 2 {
+		h.nEating++
+		h.Unlock()
 		return true
 	} else {
+		h.Unlock()
 		return false
 	}
 }
 
 func (h Host) done() {
-	ne := <-h.nEating
-	ne--
-	h.nEating <- ne
+	h.Lock()
+	h.nEating--
+	h.Unlock()
 }
 
 func main() {
@@ -82,8 +84,8 @@ func main() {
 		philos[i] = &Philo{i, CSticks[i], CSticks[(i+1)%5]}
 	}
 	var host *Host
-	host = &Host{make(chan int)}
-	host.nEating <- 0
+	host = new(Host)
+	host.nEating = 0
 	w.Add(5)
 	for i := 0; i < 5; i++ {
 		go philos[i].eat(host)
