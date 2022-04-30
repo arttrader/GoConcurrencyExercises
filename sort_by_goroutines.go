@@ -143,6 +143,7 @@ func partialSort(s *[]int) {
 func main() {
 	fmt.Println("Enter series of integers separated by space:")
 	s := readInput()
+	// s := "23 5 58 6 16 57 39 78 63 22 53 17 83 4 8"
 	fmt.Print("Integers entered: ")
 	fmt.Println(s)
 	if len(s) < 4 {
