@@ -11,12 +11,6 @@ func prod(v1 int, v2 int, c chan int) {
 	c <- v1 * v2
 }
 
-func inc(c chan int) {
-	i := <-c
-	i++
-	c <- i
-}
-
 func main() {
 	c1 := make(chan int)
 	c2 := make(chan int)
@@ -29,12 +23,4 @@ func main() {
 	case b := <-c2:
 		fmt.Println(b)
 	}
-
-	// deadlock example
-	c := make(chan int)
-	w.Add(2)
-	go inc(c)
-	go inc(c)
-	w.Wait()
-	fmt.Println(<-c)
 }
