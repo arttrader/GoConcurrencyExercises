@@ -134,9 +134,9 @@ func splitInto4(s []int) [4][]int {
 
 var wg sync.WaitGroup
 
-func partialSort(s *[]int) {
+func partialSort(s []int) {
 	//	fmt.Println(*s)
-	sort.Ints(*s)
+	sort.Ints(s)
 	wg.Done()
 }
 
@@ -154,7 +154,7 @@ func main() {
 
 	wg.Add(4)
 	for i := 0; i < 4; i++ {
-		go partialSort(&parts[i])
+		go partialSort(parts[i])
 	}
 	wg.Wait()
 	fmt.Println()
