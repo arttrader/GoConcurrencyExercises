@@ -17,6 +17,8 @@ The program should prompt the user to input a series of integers. Each goroutine
 */
 
 // Binary tree used for the 4 way merge
+const nWay = 4
+
 type Node struct {
 	val   int
 	left  *Node
@@ -106,11 +108,11 @@ func readInput() []int {
 	return s
 }
 
-func splitInto4(s []int) [4][]int {
-	var parts [4][]int
+func splitInto4(s []int) [nWay][]int {
+	var parts [nWay][]int
 	n := len(s)
-	partLen := n / 4
-	rm := n % 4
+	partLen := n / nWay
+	rm := n % nWay
 	var e int
 	var pls int
 	i := 0
@@ -141,26 +143,26 @@ func partialSort(s []int) {
 }
 
 func main() {
-	fmt.Println("Enter series of integers separated by space:")
+	fmt.Println("Enter series of integers separated by spaces:")
 	s := readInput()
 	// s := "23 5 58 6 16 57 39 78 63 22 53 17 83 4 8"
 	fmt.Print("Integers entered: ")
 	fmt.Println(s)
-	if len(s) < 4 {
-		fmt.Println("Number of elements need to be more than 4")
+	if len(s) < nWay {
+		fmt.Printf("Number of elements need to be more than %d\n", nWay)
 		return
 	}
 	parts := splitInto4(s)
 
-	wg.Add(4)
-	for i := 0; i < 4; i++ {
+	wg.Add(nWay)
+	for i := 0; i < nWay; i++ {
 		go partialSort(parts[i])
 	}
 	wg.Wait()
 	fmt.Println()
-	// using binary tree to compbine them in approximately O(n•log(4)) time
+	// using binary tree to compbine them in approximately O(n•log(n)) time
 	tree := &BT{}
-	for i := 0; i < 4; i++ {
+	for i := 0; i < nWay; i++ {
 		fmt.Printf("Sorted by goroutine %d ", i+1)
 		fmt.Println(parts[i])
 		tree.insert(parts[i])

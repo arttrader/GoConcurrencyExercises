@@ -25,9 +25,11 @@ When a philosopher starts eating (after it has obtained necessary locks) it prin
 When a philosopher finishes eating (before it has released its locks) it prints “finishing eating <number>” on a line by itself, where <number> is the number of the philosopher.
 */
 
-var w sync.WaitGroup
+const nPhilos = 5
+const ne = 3
+const concurrentEatingNum = 2
 
-const ne int = 3
+var w sync.WaitGroup
 
 type ChopS struct{ sync.Mutex }
 
@@ -58,7 +60,7 @@ func (p Philo) eat(h *Host) {
 
 func (h Host) allow() bool {
 	h.Lock()
-	if h.nEating < 2 {
+	if h.nEating < concurrentEatingNum {
 		h.nEating++
 		h.Unlock()
 		return true
@@ -75,19 +77,19 @@ func (h Host) done() {
 }
 
 func main() {
-	CSticks := make([]*ChopS, 5)
-	for i := 0; i < 5; i++ {
+	CSticks := make([]*ChopS, nPhilos)
+	for i := 0; i < nPhilos; i++ {
 		CSticks[i] = new(ChopS)
 	}
-	var philos [5]*Philo
-	for i := 0; i < 5; i++ {
-		philos[i] = &Philo{i, CSticks[i], CSticks[(i+1)%5]}
+	var philos [nPhilos]*Philo
+	for i := 0; i < nPhilos; i++ {
+		philos[i] = &Philo{i, CSticks[i], CSticks[(i+1)%nPhilos]}
 	}
 	var host *Host
 	host = new(Host)
 	host.nEating = 0
-	w.Add(5)
-	for i := 0; i < 5; i++ {
+	w.Add(nPhilos)
+	for i := 0; i < nPhilos; i++ {
 		go philos[i].eat(host)
 	}
 	w.Wait()
