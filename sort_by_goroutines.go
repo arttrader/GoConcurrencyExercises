@@ -16,9 +16,9 @@ Write a program to sort an array of integers. The program should partition the a
 The program should prompt the user to input a series of integers. Each goroutine which sorts ¼ of the array should print the subarray that it will sort. When sorting is complete, the main goroutine should print the entire sorted list.
 */
 
-// Binary tree used for the 4 way merge
 const nWay = 4
 
+// Binary tree used for the n way merge
 type Node struct {
 	val   int
 	left  *Node
