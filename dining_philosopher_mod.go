@@ -36,6 +36,7 @@ type ChopS struct{ sync.Mutex }
 type Philo struct {
 	num             int
 	leftCS, rightCS *ChopS
+	finished        bool
 }
 
 type Host struct {
@@ -44,7 +45,8 @@ type Host struct {
 }
 
 func (p Philo) eat(h *Host) {
-	for i := 0; i < ne; i++ {
+	i := 0
+	for i < ne {
 		if h.allow() {
 			p.leftCS.Lock()
 			p.rightCS.Lock()
@@ -53,24 +55,24 @@ func (p Philo) eat(h *Host) {
 			p.rightCS.Unlock()
 			p.leftCS.Unlock()
 			h.done()
+			i++
 		}
 	}
 	w.Done()
 }
 
-func (h Host) allow() bool {
+func (h *Host) allow() bool {
 	h.Lock()
 	if h.nEating < concurrentEatingNum {
 		h.nEating++
 		h.Unlock()
 		return true
-	} else {
-		h.Unlock()
-		return false
 	}
+	h.Unlock()
+	return false
 }
 
-func (h Host) done() {
+func (h *Host) done() {
 	h.Lock()
 	h.nEating--
 	h.Unlock()
@@ -83,7 +85,7 @@ func main() {
 	}
 	var philos [nPhilos]*Philo
 	for i := 0; i < nPhilos; i++ {
-		philos[i] = &Philo{i, CSticks[i], CSticks[(i+1)%nPhilos]}
+		philos[i] = &Philo{i, CSticks[i], CSticks[(i+1)%nPhilos], false}
 	}
 	var host *Host
 	host = new(Host)
